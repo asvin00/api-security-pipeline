@@ -1,0 +1,9 @@
+# Flask: the web framework our app is built on
+flask==3.0.0
+
+# pytest: the testing framework that runs our test_ functions
+pytest==7.4.3
+
+# pytest-cov: adds code coverage reporting to pytest
+# (tells you what % of your code is covered by tests)
+pytest-cov==4.1.0

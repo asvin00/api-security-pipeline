@@ -4,18 +4,17 @@ phases:
   install:
     commands:
       - echo Installing kubectl...
-      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.34.0/2026-01-01/bin/linux/amd64/kubectl
+      - curl -LO "https://dl.k8s.io/release/v1.34.0/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
 
       - echo Installing Trivy...
-      - wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.0_Linux-64bit.tar.gz
-      - tar -xvf trivy_0.50.0_Linux-64bit.tar.gz
-      - mv trivy /usr/local/bin/
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      - mv bin/trivy /usr/local/bin/
 
   pre_build:
     commands:
-      - echo Logging into ECR...
+      - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 044014415460.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
@@ -26,13 +25,15 @@ phases:
 
   post_build:
     commands:
-      - echo Pushing image...
+      - echo Pushing Docker image to ECR...
       - docker push 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
 
-      - echo Running Trivy scan...
+      - echo Running Trivy security scan...
       - trivy image 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
 
-      - echo Deploying to EKS...
+      - echo Updating kubeconfig...
       - aws eks update-kubeconfig --region ap-south-1 --name devsecops-cluster
+
+      - echo Deploying to Kubernetes...
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml

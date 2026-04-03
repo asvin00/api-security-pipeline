@@ -1,2 +1,2 @@
 # api-security-pipeline
-CI/CD pipeline demo app
+Secure CI/CD pipeline for Python app

@@ -16,7 +16,7 @@ phases:
     commands:
       - echo Running Unit Tests...
       - pip install -r requirements.txt
-      - python -m pytest test_app.py
+      - python -m pytest 
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 044014415460.dkr.ecr.ap-south-1.amazonaws.com
 

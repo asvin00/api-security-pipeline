@@ -49,9 +49,7 @@ phases:
       - echo Uploading reports to S3...
       - aws s3 cp bandit-report.json s3://devsecops-reports-bucket/
       - aws s3 cp trivy-report.json s3://devsecops-reports-bucket/ || true
-      - echo "Forcing pipeline failure for SNS test"
-      - exit 1
-
+      
 artifacts:
   files:
     - '**/*' # This fixes the 'NoSuchKey' error by passing files to the next stage

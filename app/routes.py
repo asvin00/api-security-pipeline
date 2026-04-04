@@ -31,3 +31,9 @@ def delete_item(item_id):
     if result:
         return jsonify({"message": "Deleted"})
     return jsonify({"error": "Not found"}), 404
+
+@main.route('/secret-test')
+def secret_test():
+    return jsonify({
+        "secret_loaded": Config.DB_PASSWORD is not None
+    })

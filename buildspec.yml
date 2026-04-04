@@ -1,4 +1,7 @@
 version: 0.2
+env:
+  secrets-manager:
+    DB_PASSWORD: devsecops/db-password
 
 phases:
   install:
@@ -19,12 +22,18 @@ phases:
       - python -m pytest 
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 044014415460.dkr.ecr.ap-south-1.amazonaws.com
+      - echo Installing Bandit...
+      - pip install bandit
+      - echo Running Bandit security scan...
+      - bandit -r app/ -f json -o bandit-report.json
+      - bandit -r app/ --severity-level high
 
   build:
     commands:
       - echo Building Docker image...
       - docker build -t python-devsecops .
       - docker tag python-devsecops:latest 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
+      - echo "Secret loaded successfully"
 
   post_build:
     commands:
@@ -37,6 +46,11 @@ phases:
       - echo Deploying to Kubernetes...
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
+      - echo Uploading reports to S3...
+      - aws s3 cp bandit-report.json s3://devsecops-reports-bucket/
+      - aws s3 cp trivy-report.json s3://devsecops-reports-bucket/ || true
+      - echo "Forcing pipeline failure for SNS test"
+      - exit 1
 
 artifacts:
   files:

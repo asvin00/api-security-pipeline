@@ -40,7 +40,8 @@ phases:
       - echo Pushing Docker image to ECR...
       - docker push 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
       - echo Running Trivy security scan...
-      - trivy image --severity HIGH,CRITICAL 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
+      - trivy image --severity HIGH,CRITICAL --format json -o trivy-report.json 044014415460.dkr.ecr.ap-south-1.amazonaws.com/python-devsecops:latest
+      - aws s3 cp trivy-report.json s3://devsecops-reports-bucket/
       - echo Updating kubeconfig...
       - aws eks update-kubeconfig --region ap-south-1 --name devsecops-cluster
       - echo Deploying to Kubernetes...
@@ -48,8 +49,7 @@ phases:
       - kubectl apply -f service.yaml
       - echo Uploading reports to S3...
       - aws s3 cp bandit-report.json s3://devsecops-reports-bucket/
-      - aws s3 cp trivy-report.json s3://devsecops-reports-bucket/ || true
-      
+       
 artifacts:
   files:
     - '**/*' # This fixes the 'NoSuchKey' error by passing files to the next stage

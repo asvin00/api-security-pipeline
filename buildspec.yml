@@ -52,4 +52,4 @@ phases:
        
 artifacts:
   files:
-    - '**/*' # This fixes the 'NoSuchKey' error by passing files to the next stage
+    - '**/*' # This fixes the 'NoSuchKey' error by passing files to the 
